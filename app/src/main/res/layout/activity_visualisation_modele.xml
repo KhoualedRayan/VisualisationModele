@@ -6,4 +6,29 @@
     android:layout_height="match_parent"
     tools:context=".VisualisationModele">
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recylcerView_Pieces"
+        android:layout_width="367dp"
+        android:layout_height="665dp"
+        android:layout_marginTop="1dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.892" />
+
+    <TextView
+        android:id="@+id/textView_nomModele"
+        android:layout_width="410dp"
+        android:layout_height="58dp"
+        android:capitalize="characters"
+        android:textAlignment="center"
+        android:textAllCaps="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.001"
+        tools:ignore="Deprecated,SpeakableTextPresentCheck,TextViewEdits" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

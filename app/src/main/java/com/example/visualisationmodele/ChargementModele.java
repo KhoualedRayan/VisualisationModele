@@ -4,14 +4,15 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.OpenableColumns;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -22,7 +23,6 @@ import java.util.ArrayList;
 
 import habitation.Modele;
 import outils.ModeleSingleton;
-import recyclerviews.AdaptateurModele;
 
 public class ChargementModele extends AppCompatActivity {
 
@@ -65,14 +65,6 @@ public class ChargementModele extends AppCompatActivity {
 
                         // Lisez le contenu du fichier et stockez-le dans le fichier local
                         readFileContent(uri, file);
-                        if (file.isFile() && fileName.toLowerCase().endsWith(".json")) {
-                            Log.i("CHARGEMENTMODELE : ", "Fichier JSON trouvé : " + file.getAbsolutePath());
-                            Modele m = new Modele();
-                            m.setNom(fileName);
-                            modeles.add(m);
-                            ModeleSingleton.getInstance().getModeleInstance().remplacementModele(m);
-                            Log.i("CHARGEMENTMODELE : ", ModeleSingleton.getInstance().getModeleInstance().toString());
-                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -97,12 +89,6 @@ public class ChargementModele extends AppCompatActivity {
         // Utilisez un BufferedReader pour lire le contenu du fichier
         try (InputStream inputStream = getContentResolver().openInputStream(uri);
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-
-            // Écrivez le contenu du fichier dans le fichier local
-            // Vous pouvez également traiter le contenu JSON ici selon vos besoins
-            // Par exemple, si le fichier contient du JSON, vous pouvez utiliser une bibliothèque JSON pour le parser.
-
-            // Pour l'exemple, nous allons simplement lire et afficher chaque ligne du fichier
             StringBuilder content = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
@@ -111,8 +97,23 @@ public class ChargementModele extends AppCompatActivity {
 
             // Affichez le contenu dans les logs
             Log.i("File Content", content.toString());
+
+            // Désérialisez le contenu JSON en un objet Modele
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+            try {
+                Modele modeleCharger = objectMapper.readValue(content.toString(), Modele.class);
+                ModeleSingleton.getInstance().getModeleInstance().remplacementModele(modeleCharger);
+                Log.i("CHARGEMENTMODELE : ", ModeleSingleton.getInstance().getModeleInstance().toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e("CHARGEMENTMODELE : ", "Erreur lors de la désérialisation JSON : " + e.getMessage());
+            }
         }
+        finish();
     }
+
 
 
 }

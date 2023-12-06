@@ -24,6 +24,7 @@
         android:id="@+id/button_visualiser_modele"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="visualiserModele"
         android:backgroundTint="@android:color/holo_red_light"
         android:text="@string/VisualisationModele"
         android:textColor="#212121"

@@ -3,4 +3,5 @@
     <string name="ChargerModele">Charger un modèle</string>
     <string name="VisualisationModele">Visualiser le modèle</string>
     <string name="Nom">Name</string>
+    <string name="vide" />
 </resources>

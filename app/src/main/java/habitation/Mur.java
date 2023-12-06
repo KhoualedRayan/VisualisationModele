@@ -1,11 +1,15 @@
 package habitation;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.ArrayList;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Mur {
     private Orientation orientation;
     private String nomBitmap;
     private ArrayList<Ouverture> ouvertures;
+    private byte[] bytes;
 
     public Mur() {
         ouvertures = new ArrayList<>();
@@ -48,4 +52,15 @@ public class Mur {
     public void setOuvertures(ArrayList<Ouverture> ouvertures) {
         this.ouvertures = ouvertures;
     }
+
+
+
+    public byte[] getBytes() {
+        return bytes;
+    }
+
+    public void setBytes(byte[] bytes) {
+        this.bytes = bytes;
+    }
+
 }
