@@ -88,7 +88,7 @@ public class PieceActivity extends AppCompatActivity {
             initNewPiece();
         }else {
             new AlertDialog.Builder(this)
-                    .setTitle("Piece invalide")
+                    .setTitle("Piece invalide : "+ p.getNom())
                     .setMessage("La pièce doit avoir 4 pièces pour la visiter.")
                     .setNeutralButton("OK",null)
                     .setIcon(android.R.drawable.ic_dialog_alert)
