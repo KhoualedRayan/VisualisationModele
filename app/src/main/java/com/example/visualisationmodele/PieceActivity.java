@@ -146,8 +146,21 @@ public class PieceActivity extends AppCompatActivity {
         bitmapOuest= BitmapFactory.decodeByteArray(ModeleSingleton.getInstance().getPieceEnCours().getMurOuest().getBytes(), 0, ModeleSingleton.getInstance().getPieceEnCours().getMurOuest().getBytes().length);
         bitmapSud= BitmapFactory.decodeByteArray(ModeleSingleton.getInstance().getPieceEnCours().getMurSud().getBytes(), 0, ModeleSingleton.getInstance().getPieceEnCours().getMurSud().getBytes().length);
         bitmapEst= BitmapFactory.decodeByteArray(ModeleSingleton.getInstance().getPieceEnCours().getMurEst().getBytes(), 0, ModeleSingleton.getInstance().getPieceEnCours().getMurEst().getBytes().length);
-        direction = "nord";
-        imageView.setImageBitmap(bitmapNord);
+        switch (direction){
+            case "nord":
+                imageView.setImageBitmap(bitmapNord);
+                break;
+            case "est":
+                imageView.setImageBitmap(bitmapEst);
+                break;
+            case "ouest":
+                imageView.setImageBitmap(bitmapOuest);
+                break;
+            case "sud":
+                imageView.setImageBitmap(bitmapSud);
+                break;
+        }
+        affichageRect();
     }
     public void affichageRect(){
         rects.clear();
