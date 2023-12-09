@@ -11,14 +11,19 @@ import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -164,29 +169,72 @@ public class PieceActivity extends AppCompatActivity {
     }
     public void affichageRect(){
         rects.clear();
+        enleverAnciensEtiquettes();
+        enleverAnciensEtiquettes();
         switch (direction){
             case "nord":
                 for(Ouverture ouverture : ModeleSingleton.getInstance().getPieceEnCours().getMurNord().getOuvertures()){
                     rects.add(ouverture.getRect());
+                    etiquette(ouverture.getRect(),ouverture.getPieceArrivee());
                 }
                 break;
             case "sud":
                 for(Ouverture ouverture : ModeleSingleton.getInstance().getPieceEnCours().getMurSud().getOuvertures()){
                     rects.add(ouverture.getRect());
+                    etiquette(ouverture.getRect(),ouverture.getPieceArrivee());
                 }
                 break;
             case "ouest":
                 for(Ouverture ouverture : ModeleSingleton.getInstance().getPieceEnCours().getMurOuest().getOuvertures()){
                     rects.add(ouverture.getRect());
+                    etiquette(ouverture.getRect(),ouverture.getPieceArrivee());
                 }
                 break;
             case "est":
                 for(Ouverture ouverture : ModeleSingleton.getInstance().getPieceEnCours().getMurEst().getOuvertures()){
                     rects.add(ouverture.getRect());
+                    etiquette(ouverture.getRect(),ouverture.getPieceArrivee());
                 }
                 break;
         }
         dessinRectangle();
+    }
+    private void enleverAnciensEtiquettes() {
+        FrameLayout layout = (FrameLayout) surfaceView.getParent();
+        for (int i = 0; i < layout.getChildCount(); i++) {
+            View child = layout.getChildAt(i);
+            if (child instanceof RelativeLayout) {
+                layout.removeView(child);
+            }
+        }
+    }
+    public void etiquette(Rect r,String s){
+        RelativeLayout relativeLayout = new RelativeLayout(this);
+        int backgroundColor = Color.argb(127, 0, 255, 0); // 50% d'opacité (255 * 0.5)
+        RelativeLayout.LayoutParams relativeLayoutParams = new RelativeLayout.LayoutParams(
+                r.width(),
+                r.height()
+        );
+        relativeLayoutParams.leftMargin = r.left;
+        relativeLayoutParams.topMargin = r.top;
+
+        ((FrameLayout) surfaceView.getParent()).addView(relativeLayout, relativeLayoutParams);
+
+        TextView textView = new TextView(this);
+        textView.setText(s);
+        textView.setAllCaps(true);
+        textView.setTypeface(null, Typeface.BOLD);
+        textView.setTextColor(Color.BLACK);
+
+        relativeLayout.setBackgroundColor(backgroundColor);
+
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        params.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
+
+        relativeLayout.addView(textView, params);
     }
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
