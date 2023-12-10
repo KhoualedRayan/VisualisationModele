@@ -3,6 +3,7 @@ package com.example.visualisationmodele;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -12,6 +13,10 @@ import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -23,8 +28,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 import java.util.ArrayList;
@@ -33,7 +38,7 @@ import habitation.Ouverture;
 import habitation.Piece;
 import outils.ModeleSingleton;
 
-public class PieceActivity extends AppCompatActivity {
+public class PieceActivity extends AppCompatActivity implements SensorEventListener {
     private SurfaceView surfaceView;
     private ImageView imageView;
     private Bitmap bitmapNord;
@@ -45,16 +50,30 @@ public class PieceActivity extends AppCompatActivity {
     private SurfaceHolder surfaceHolder;
     private ArrayList<Rect> rects;
     private Paint paint;
+    private Switch capteur;
+    private SensorManager sensorManager;
+    private Sensor accelerometre;
+    private Sensor magnetometre;
+    private boolean isSensorEnabled = false;
+    private float[] matriceR;
+    private float[] accel;
+    private float[] magneto;
+    private float[] orientation;
+    private ImageButton next;
+    private ImageButton precedent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_piece);
         init();
+        initCapteurs();
     }
     public void init(){
         surfaceView = findViewById(R.id.surfaceView);
         imageView = findViewById(R.id.imageView_Mur);
         rects = new ArrayList<>();
+        next = findViewById(R.id.imageButton_next);
+        precedent = findViewById(R.id.imageButton_previous);
         surfaceHolder = surfaceView.getHolder();
         surfaceView.setZOrderOnTop(true);
         canvas = new Canvas();
@@ -86,6 +105,16 @@ public class PieceActivity extends AppCompatActivity {
                 return false;
             }
         });
+    }
+    public void initCapteurs(){
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        accelerometre = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        magnetometre = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        capteur = findViewById(R.id.switch_boussole);
+        matriceR = new float[9];
+        accel = new float[3];
+        magneto = new float[3];
+        orientation = new float[3];
     }
     public void verifChangementPiece(Piece p) {
         if (p.getMurEst().getNomBitmap() != null && p.getMurSud().getNomBitmap() != null && p.getMurNord().getNomBitmap() != null && p.getMurOuest().getNomBitmap() != null) {
@@ -304,5 +333,97 @@ public class PieceActivity extends AppCompatActivity {
                 affichageRect();
                 break;
         }
+    }
+
+    public void isTelMoving(float accelx, float accely, float accelz){
+        double omegaMagnitude = Math.sqrt(accelx * accelx + accely * accely +accelz * accelz );
+        double gravityMagnitude = SensorManager.STANDARD_GRAVITY;
+        double tolerance = 0.2;
+        if(Math.abs(omegaMagnitude - gravityMagnitude) < tolerance){
+            Log.i("Capteur : ","IMMOBILE");
+        }else {
+            Log.i("Capteur : ","MOBILE");
+        }
+    }
+    public void switchOnClick(View view){
+        if(isSensorEnabled){
+            sensorManager.unregisterListener(this);
+            capteur.setText("Capteur Désactivé");
+            isSensorEnabled = false;
+            next.setVisibility(View.VISIBLE);
+            precedent.setVisibility(View.VISIBLE);
+
+        }else{
+            sensorManager.registerListener(this, accelerometre, SensorManager.SENSOR_DELAY_NORMAL);
+            sensorManager.registerListener(this, magnetometre, SensorManager.SENSOR_DELAY_NORMAL);
+            capteur.setText("Capteur Activé");
+            isSensorEnabled = true;
+            next.setVisibility(View.INVISIBLE);
+            precedent.setVisibility(View.INVISIBLE);
+        }
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (isSensorEnabled) {
+            sensorManager.registerListener(this, accelerometre, SensorManager.SENSOR_DELAY_NORMAL);
+            sensorManager.registerListener(this, magnetometre, SensorManager.SENSOR_DELAY_NORMAL);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (isSensorEnabled) {
+            sensorManager.unregisterListener(this);
+        }
+    }
+
+
+
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if(event.sensor == accelerometre) {
+            Log.i("Capteur", event.sensor.toString());
+            float accelx = event.values[0];
+            float accely = event.values[1];
+            float accelz = event.values[2];
+            accel = event.values;
+            isTelMoving(accelx, accely, accelz);
+        }
+        if (event.sensor == magnetometre) {
+            magneto = event.values;
+            SensorManager.getRotationMatrix(matriceR,null,accel,magneto);
+            SensorManager.getOrientation(matriceR,orientation);
+            // Convertir l'angle d'azimut de radians à degrés
+            float azimuthDeg = (float) Math.toDegrees(orientation[0]);
+
+            if (azimuthDeg >= -45 && azimuthDeg < 45) {
+                direction = "nord";
+                imageView.setImageBitmap(bitmapNord);
+                Log.i("Direction", "NORD");
+            } else if (azimuthDeg >= 45 && azimuthDeg < 135) {
+                direction = "est";
+                imageView.setImageBitmap(bitmapEst);
+                Log.i("Direction", "EST");
+            } else if (azimuthDeg >= 135 || azimuthDeg < -135) {
+                direction = "sud";
+                imageView.setImageBitmap(bitmapSud);
+                Log.i("Direction", "SUD");
+            } else if (azimuthDeg >= -135 && azimuthDeg < -45) {
+                direction = "ouest";
+                imageView.setImageBitmap(bitmapOuest);
+                Log.i("Direction", "OUEST");
+            }
+            affichageRect();
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
     }
 }
