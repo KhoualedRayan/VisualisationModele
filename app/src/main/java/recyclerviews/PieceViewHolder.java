@@ -23,7 +23,7 @@ import outils.ModeleSingleton;
 
 public class PieceViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
     private TextView nom;
-    private Context context;
+    private final Context context;
 
     public void setNom(TextView nom) {
         this.nom = nom;

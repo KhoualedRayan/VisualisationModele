@@ -4,7 +4,7 @@ import habitation.Modele;
 import habitation.Piece;
 
 public class ModeleSingleton {
-    private Modele modeleInstance;
+    private final Modele modeleInstance;
     private Piece pieceEnCours;
 
     private static final ModeleSingleton instance = new ModeleSingleton();

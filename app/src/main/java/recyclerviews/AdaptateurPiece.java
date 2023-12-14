@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import habitation.Piece;
 
 public class AdaptateurPiece extends RecyclerView.Adapter<PieceViewHolder>{
-    private ArrayList<Piece> pieces;
+    private final ArrayList<Piece> pieces;
 
     public AdaptateurPiece(ArrayList<Piece> pieces){
         this.pieces =pieces;

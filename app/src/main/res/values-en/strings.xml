@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ShowHabitation</string>
+    <string name="ChargerModele">Load a model</string>
+    <string name="VisualisationModele">View a model</string>
+    <string name="Nom">Name</string>
+    <string name="Boussole">Compass mode</string>
+</resources>
